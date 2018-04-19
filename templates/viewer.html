@@ -25,12 +25,12 @@ iframe {
         <label for="log_url">Log</label>
         <input name="log_url" type="text" value="{{ log_url }}"/>
         <label for="filter">Filter</label>
-        <input name="url_filter" type="text" value="{{ request.args.get('url_filter') }}"/>
+        <input name="url_filter" type="text" value="{{ request.args.get('url_filter', '') }}"/>
         <button type="submit" class="pure-button pure-button-primary">View</button>
     </fieldset>
 </form>
 </div>
-<iframe src="/log?url={{ log_url }}&url_filter={{ request.args.get('url_filter') }}">
+<iframe src="/log?url={{ log_url }}&url_filter={{ request.args.get('url_filter', '') }}">
 </iframe>
 </body>
 </html>
