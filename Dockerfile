@@ -1,4 +1,4 @@
-FROM python:3-alpine
+FROM python:2.7-alpine
 
 WORKDIR /usr/src/access
 
