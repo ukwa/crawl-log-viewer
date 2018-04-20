@@ -4,14 +4,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>log viewer</title>
 <style>
-body, html {width: 100%; height: 100%; margin: 0; padding: 0; padding-top: 3px;}
+body, html {width: 100%; height: 100%; margin: 0; padding: 0;}
 iframe {
     display: block;
     width: 100%;
-    height: 90%;
+    height: 85%;
     border: none;
 }
 .toolbar {
+    margin-top: 10px;
     height: 50px;
 }
 </style>
@@ -23,8 +24,12 @@ iframe {
     <div class="toolbar">
         <div class="pure-g">
             <div class="pure-u-5-5">
-                &nbsp;<label for="filter">URL Filter</label>&nbsp;
-                <input name="url_filter" type="text" value="{{ request.args.get('url_filter', '') }}"/>
+                &nbsp;<label for="filter">Filters</label>&nbsp;
+                <input name="url_filter" type="text" value="{{ request.args.get('url_filter', '') }}" placeholder="URL"/>
+                <input name="hop_path" type="text" value="{{ request.args.get('hop_path', '') }}" placeholder="Hop Path"/>
+                <input name="status_code" type="text" value="{{ request.args.get('status_code', '') }}" placeholder="Status Code"/>
+                <input name="via" type="text" value="{{ request.args.get('via', '') }}" placeholder="Via URL"/>
+                <input name="source" type="text" value="{{ request.args.get('source', '') }}" placeholder="Source URL"/>
                 <button type="submit" class="pure-button pure-button-primary">Filter</button>
             </div>
         </div>

@@ -12,7 +12,7 @@ def root():
 
 
 #
-def generate(log_url, url_filter=None, len=1024):
+def generate(log_url, url_filter=None, hop_path=None, status_code=None, via=None, source=None, len=1024):
     i = 0
     print("GOT log_url = %s" % log_url)
     r = requests.get(log_url, stream=True)
@@ -20,9 +20,18 @@ def generate(log_url, url_filter=None, len=1024):
         line = line.decode('utf-8')
         log_line = CrawlLogLine(line)
         #print(url_filter,log_line.url)
-        emit = False
-        if not url_filter or url_filter in log_line.url:
-            emit = True
+        emit = True
+        # Filters:
+        if hop_path and hop_path != log_line.hop_path:
+            emit = False
+        if url_filter and url_filter not in log_line.url:
+            emit = False
+        if status_code and status_code != log_line.status_code:
+            emit = False
+        if via and via not in log_line.via:
+            emit = False
+        if source and source not in log_line.source:
+            emit = False
 
         if emit:
             #print(log_line)
@@ -37,4 +46,8 @@ def generate(log_url, url_filter=None, len=1024):
 def log():
     log_url = request.args.get('log_url', default='http://localhost:8000/static/example.crawl.log', type=str)
     url_filter = request.args.get('url_filter', type=str)
-    return Response(generate(log_url, url_filter), mimetype='text/plain')
+    hop_path = request.args.get('hop_path', type=str)
+    status_code = request.args.get('status_code', type=str)
+    via = request.args.get('via', type=str)
+    source = request.args.get('source', type=str)
+    return Response(generate(log_url, url_filter, hop_path, status_code, via, source), mimetype='text/plain')
