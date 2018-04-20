@@ -32,7 +32,7 @@ def generate(log_url, url_filter=None):
 
 
 @app.route("/log")
-def log_streamer():
+def log():
     log_url = request.args.get('log_url', default='https://raw.githubusercontent.com/ukwa/w3act/master/crawl.log', type=str)
     url_filter = request.args.get('url_filter', type=str)
     return Response(generate(log_url, url_filter), mimetype='text/plain')
