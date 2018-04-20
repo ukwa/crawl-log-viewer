@@ -18,10 +18,18 @@ def generate(log_url, url_filter=None, hop_path=None, status_code=None, via=None
     r = requests.get(log_url, stream=True)
     for line in r.iter_lines():
         line = line.decode('utf-8')
-        log_line = CrawlLogLine(line)
-        #print(url_filter,log_line.url)
-        emit = True
+        try:
+            log_line = CrawlLogLine(line)
+            # print(url_filter,log_line.url)
+        except Exception as e:
+            print(e)
+            print("Caught exception when parsing line: %s"+ line)
+            yield "ERROR: %s\n" % line
+            # Try the next line...
+            continue
+
         # Filters:
+        emit = True
         if hop_path and hop_path != log_line.hop_path:
             emit = False
         if url_filter and url_filter not in log_line.url:
@@ -33,6 +41,7 @@ def generate(log_url, url_filter=None, hop_path=None, status_code=None, via=None
         if source and source not in log_line.source:
             emit = False
 
+        # yield if not filtered:
         if emit:
             #print(log_line)
             yield "%s\n" % line
