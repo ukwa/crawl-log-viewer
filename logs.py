@@ -12,7 +12,7 @@ def root():
 
 
 #
-def generate(log_url, url_filter=None, len=64):
+def generate(log_url, url_filter=None, len=1024):
     i = 0
     print("GOT log_url = %s" % log_url)
     r = requests.get(log_url, stream=True)
