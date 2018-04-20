@@ -1,3 +1,5 @@
+import re
+import fnmatch
 from parser import CrawlLogLine
 from flask import Flask, Response, request, render_template
 import requests
@@ -11,8 +13,12 @@ def root():
     return render_template('viewer.html', log_url=log_url)
 
 
+def match(filterer, value):
+    return re.match(fnmatch.translate(filterer),value)
+
+
 #
-def generate(log_url, url_filter=None, hop_path=None, status_code=None, via=None, source=None, len=1024):
+def generate(log_url, url_filter=None, hop_path=None, status_code=None, via=None, source=None, content_type=None, len=1024):
     i = 0
     print("GOT log_url = %s" % log_url)
     r = requests.get(log_url, stream=True)
@@ -30,15 +36,17 @@ def generate(log_url, url_filter=None, hop_path=None, status_code=None, via=None
 
         # Filters:
         emit = True
-        if hop_path and hop_path != log_line.hop_path:
+        if status_code and not match(status_code, log_line.status_code):
             emit = False
-        if url_filter and url_filter not in log_line.url:
+        if url_filter and not match(url_filter, log_line.url):
             emit = False
-        if status_code and status_code != log_line.status_code:
+        if hop_path and not match(hop_path, log_line.hop_path):
             emit = False
-        if via and via not in log_line.via:
+        if via and not match(via, log_line.via):
             emit = False
-        if source and source not in log_line.source:
+        if content_type and not match(content_type, log_line.mime):
+            emit = False
+        if source and not match(source, log_line.source):
             emit = False
 
         # yield if not filtered:
@@ -58,5 +66,6 @@ def log():
     hop_path = request.args.get('hop_path', type=str)
     status_code = request.args.get('status_code', type=str)
     via = request.args.get('via', type=str)
+    content_type = request.args.get('content_type', type=str)
     source = request.args.get('source', type=str)
-    return Response(generate(log_url, url_filter, hop_path, status_code, via, source), mimetype='text/plain')
+    return Response(generate(log_url, url_filter, hop_path, status_code, via, source, content_type), mimetype='text/plain')

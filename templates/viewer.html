@@ -25,10 +25,11 @@ iframe {
         <div class="pure-g">
             <div class="pure-u-5-5">
                 &nbsp;<label for="filter">Filters</label>&nbsp;
+                <input name="status_code" type="text" value="{{ request.args.get('status_code', '') }}" placeholder="Status Code"/>
                 <input name="url_filter" type="text" value="{{ request.args.get('url_filter', '') }}" placeholder="URL"/>
                 <input name="hop_path" type="text" value="{{ request.args.get('hop_path', '') }}" placeholder="Hop Path"/>
-                <input name="status_code" type="text" value="{{ request.args.get('status_code', '') }}" placeholder="Status Code"/>
                 <input name="via" type="text" value="{{ request.args.get('via', '') }}" placeholder="Via URL"/>
+                <input name="content_type" type="text" value="{{ request.args.get('content_type', '') }}" placeholder="Content Type"/>
                 <input name="source" type="text" value="{{ request.args.get('source', '') }}" placeholder="Source URL"/>
                 <button type="submit" class="pure-button pure-button-primary">Filter</button>
             </div>
