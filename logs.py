@@ -14,17 +14,17 @@ def root():
 #
 def generate(log_url, url_filter=None):
     i = 0
-    print(log_url)
+    print("GOT log_url = %s" % log_url)
     r = requests.get(log_url, stream=True)
     for line in r.iter_lines():
         log_line = CrawlLogLine(str(line))
-        print(url_filter,log_line.url)
+        #print(url_filter,log_line.url)
         emit = False
         if not url_filter or url_filter in log_line.url:
             emit = True
 
         if emit:
-            print(log_line)
+            #print(log_line)
             i+=1
             yield "%s\n" % line
             if i > 100:

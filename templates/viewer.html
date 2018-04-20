@@ -30,7 +30,7 @@ iframe {
     </fieldset>
 </form>
 </div>
-<iframe src="{{ url_for( 'log', **request.args) }}">
+<iframe src="{{ url_for( 'log') }}?{{ request.query_string }}">
 </iframe>
 </body>
 </html>
