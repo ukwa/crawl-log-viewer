@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def root():
-    log_url = request.args.get('log_url', default='https://raw.githubusercontent.com/ukwa/w3act/master/crawl.log', type=str)
+    log_url = request.args.get('log_url', default='http://localhost:8000/static/example.crawl.log', type=str)
     return render_template('viewer.html', log_url=log_url)
 
 
@@ -33,6 +33,6 @@ def generate(log_url, url_filter=None):
 
 @app.route("/log")
 def log():
-    log_url = request.args.get('log_url', default='https://raw.githubusercontent.com/ukwa/w3act/master/crawl.log', type=str)
+    log_url = request.args.get('log_url', default='http://localhost:8000/static/example.crawl.log', type=str)
     url_filter = request.args.get('url_filter', type=str)
     return Response(generate(log_url, url_filter), mimetype='text/plain')
