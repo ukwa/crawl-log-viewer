@@ -7,6 +7,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD gunicorn --timeout 600 --error-logfile - --access-logfile - --bind 0.0.0.0:8000 logs:app
+CMD gunicorn --workers 20 --timeout 600 --error-logfile - --access-logfile - --bind 0.0.0.0:8000 logs:app
 
 
