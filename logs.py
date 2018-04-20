@@ -12,12 +12,13 @@ def root():
 
 
 #
-def generate(log_url, url_filter=None):
+def generate(log_url, url_filter=None, len=64):
     i = 0
     print("GOT log_url = %s" % log_url)
     r = requests.get(log_url, stream=True)
     for line in r.iter_lines():
-        log_line = CrawlLogLine(str(line))
+        line = line.decode('utf-8')
+        log_line = CrawlLogLine(line)
         #print(url_filter,log_line.url)
         emit = False
         if not url_filter or url_filter in log_line.url:
@@ -25,9 +26,10 @@ def generate(log_url, url_filter=None):
 
         if emit:
             #print(log_line)
-            i+=1
             yield "%s\n" % line
-            if i > 100:
+            i += 1
+            if i > len:
+                yield "...\n"
                 break
 
 
