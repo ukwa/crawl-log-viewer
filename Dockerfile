@@ -1,4 +1,4 @@
-FROM python:3-alpine
+FROM python:3-slim
 
 # Additional dependencies required to support Snappy compression, mmh3:
 RUN apt-get update && apt-get install -y --no-install-recommends \
