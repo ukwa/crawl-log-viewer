@@ -1,6 +1,6 @@
 import re
 import fnmatch
-from parser import CrawlLogLine
+from streamer import generate_crawl_stream
 from flask import Flask, Response, request, render_template
 import requests
 
@@ -21,18 +21,7 @@ def match(filterer, value):
 def generate(log_url, url_filter=None, hop_path=None, status_code=None, via=None, source=None, content_type=None, len=1024):
     i = 0
     print("GOT log_url = %s" % log_url)
-    r = requests.get(log_url, stream=True)
-    for line in r.iter_lines():
-        line = line.decode('utf-8')
-        try:
-            log_line = CrawlLogLine(line)
-            # print(url_filter,log_line.url)
-        except Exception as e:
-            print(e)
-            print("Caught exception when parsing line: %s"+ line)
-            yield "ERROR: %s\n" % line
-            # Try the next line...
-            continue
+    for log_line in generate_crawl_stream(broker='kafka:9092'):
 
         # Filters:
         emit = True
@@ -52,7 +41,7 @@ def generate(log_url, url_filter=None, hop_path=None, status_code=None, via=None
         # yield if not filtered:
         if emit:
             #print(log_line)
-            yield "%s\n" % line
+            yield "%s\n" % log_line
             i += 1
             if i > len:
                 yield "...\n"
