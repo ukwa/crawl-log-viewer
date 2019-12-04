@@ -110,7 +110,7 @@ def generate_crawl_stream(
         broker="kafka:9092",
         as_msg = False):
 
-    consumer = KafkaConsumer(topic, bootstrap_servers=broker, enable_auto_commit=True, consumer_timeout_ms=1000)
+    consumer = KafkaConsumer(topic, bootstrap_servers=broker, enable_auto_commit=True, consumer_timeout_ms=30*1000)
 
     tps = consumer.partitions_for_topic(topic)
     timemap_in = {}
