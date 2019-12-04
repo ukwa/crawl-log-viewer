@@ -24,12 +24,14 @@ def match(filterer, value):
 
 
 #
-def generate(topic, url_filter=None, hop_path=None, status_code=None, via=None, source=None, content_type=None, len=1024):
+def generate(topic,
+             url_filter=None, hop_path=None, status_code=None, via=None, source=None, content_type=None, len=1024,
+             from_date=datetime.now(tz=timezone.utc) - timedelta(days=2), log_hours=48):
     i = 0
     print("GOT topic = %s" % topic)
     for log_line in generate_crawl_stream(
-            from_date=datetime.now(tz=timezone.utc) - timedelta(days=2),
-            to_date=datetime.now(tz=timezone.utc) - timedelta(seconds=1),
+            from_date=from_date,
+            to_date=from_date + timedelta(hours=log_hours),
             broker=topics[topic]['broker'],
             topic=topics[topic]['topic'] ):
 
@@ -61,7 +63,6 @@ def generate(topic, url_filter=None, hop_path=None, status_code=None, via=None, 
 @app.route("/log")
 def log():
     topic = request.args.get('topic', default=next(iter(topics)), type=str)
-    print(topic, "TOPIC")
     url_filter = request.args.get('url_filter', type=str)
     hop_path = request.args.get('hop_path', type=str)
     status_code = request.args.get('status_code', type=str)
