@@ -4,6 +4,7 @@
 # This client connects to Kafka 'crawled' topic and streams back CrawlLogLines
 #
 
+import os
 import re
 import json
 from urllib.parse import urlparse
@@ -31,10 +32,10 @@ class CrawlLogEntry(object):
         self.hop_path = self.line.get('hop_path','-')
         if self.hop_path == '':
             self.hop_path = 'S'
-        self.via = self.line['via']
-        self.mime = self.line['mimetype']
-        self.source = self.line['seed']
-        self.annotations = self.line['annotations']
+        self.via = self.line.get('via','')
+        self.mime = self.line.get('mimetype','')
+        self.source = self.line.get('seed','')
+        self.annotations = self.line.get('annotations','')
 
         # Some regexes:
         self.re_ip = re.compile('^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$')

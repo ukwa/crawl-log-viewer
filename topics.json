@@ -1,0 +1,7 @@
+{
+  "test-log": {
+    "title": "Test Log",
+    "topic": "fc.crawled",
+    "broker": "localhost:9092"
+  }
+}

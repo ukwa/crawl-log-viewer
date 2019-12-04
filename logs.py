@@ -1,16 +1,22 @@
 import re
+import os
+import json
 import fnmatch
+from datetime import datetime, timezone, timedelta
 from streamer import generate_crawl_stream
 from flask import Flask, Response, request, render_template
-import requests
+
+# Load the topics spec:
+topics_json = os.getenv("TOPICS_JSON", "./topics.json")
+topics = json.load(open(topics_json))
 
 app = Flask(__name__)
 
 
 @app.route("/")
 def root():
-    log_url = request.args.get('log_url', default='http://localhost:8000/static/example.crawl.log', type=str)
-    return render_template('viewer.html', log_url=log_url)
+    topic = request.args.get('topic', default=next(iter(topics)), type=str)
+    return render_template('viewer.html', topic=topic, topics=topics)
 
 
 def match(filterer, value):
@@ -18,10 +24,14 @@ def match(filterer, value):
 
 
 #
-def generate(log_url, url_filter=None, hop_path=None, status_code=None, via=None, source=None, content_type=None, len=1024):
+def generate(topic, url_filter=None, hop_path=None, status_code=None, via=None, source=None, content_type=None, len=1024):
     i = 0
-    print("GOT log_url = %s" % log_url)
-    for log_line in generate_crawl_stream(broker='kafka:9092'):
+    print("GOT topic = %s" % topic)
+    for log_line in generate_crawl_stream(
+            from_date=datetime.now(tz=timezone.utc) - timedelta(days=2),
+            to_date=datetime.now(tz=timezone.utc) - timedelta(seconds=1),
+            broker=topics[topic]['broker'],
+            topic=topics[topic]['topic'] ):
 
         # Filters:
         emit = True
@@ -50,11 +60,12 @@ def generate(log_url, url_filter=None, hop_path=None, status_code=None, via=None
 
 @app.route("/log")
 def log():
-    log_url = request.args.get('log_url', default='http://localhost:8000/static/example.crawl.log', type=str)
+    topic = request.args.get('topic', default=next(iter(topics)), type=str)
+    print(topic, "TOPIC")
     url_filter = request.args.get('url_filter', type=str)
     hop_path = request.args.get('hop_path', type=str)
     status_code = request.args.get('status_code', type=str)
     via = request.args.get('via', type=str)
     content_type = request.args.get('content_type', type=str)
     source = request.args.get('source', type=str)
-    return Response(generate(log_url, url_filter, hop_path, status_code, via, source, content_type), mimetype='text/plain')
+    return Response(generate(topic, url_filter, hop_path, status_code, via, source, content_type), mimetype='text/plain')
