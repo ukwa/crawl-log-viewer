@@ -33,7 +33,7 @@ def default_datetime():
 def common_defaults():
     topic = request.args.get('topic', default=next(iter(topics)), type=str)
     from_date = request.args.get('from_date', type=str, default=datetime.strftime(default_datetime(), date_format))
-    log_hours = request.args.get('log_hours', type=int, default=24)
+    log_hours = request.args.get('log_hours', type=int, default=48)
     return topic, from_date, log_hours
 
 def match(filterer, value):
