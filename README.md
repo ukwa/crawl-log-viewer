@@ -55,7 +55,13 @@ If you want to check what's in there, use:
 
 And go to http://localhost:9000 to look around.
 
-Once there's a Kafka available, this app can be run like this:
+Once there's a Kafka available, you can set up a development environment:
+
+    virtualenv -p python3 venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+
+After which the app can be run like this:
 
     export FLASK_DEBUG=1
     FLASK_APP=logs.py flask run
