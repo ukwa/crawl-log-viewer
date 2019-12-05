@@ -1,15 +1,72 @@
-{% for l in log_lines %}
-<div style="white-space: nowrap; line-height: 0.95">
-    <span style="display: inline-block; width: 12em; overflow: hidden; white-space: nowrap;">{{ l.timestamp }} </span>
-    <abbr style="display: inline-block; width: 4em; overflow: hidden; white-space: nowrap;" title="{{ sc.get(l.status_code, 'unknown') }}">{{ l.status_code }}</abbr>
-    <span style="display: inline-block; width: 5em; overflow: hidden; white-space: nowrap;">{{ l.size }}</span>
-    <span style="display: inline-block; width: 24em; overflow: hidden; white-space: nowrap;"><a href="{{ l.url }}">{{ l.url }}</a></span>
-    <span style="display: inline-block; width: 5em; overflow: hidden; white-space: nowrap;">
-        {% for hop in l.hop_path %}<abbr title="{{ h[hop] }}">{{ hop }}</abbr>{% endfor %}
-    </span>
-    <span style="display: inline-block; width: 24em; overflow: hidden; white-space: nowrap;"><a href="{{ l.via }}">{{ l.via }}</a></span>
-    <span style="display: inline-block; width: 8em; overflow: hidden; white-space: nowrap;">{{ l.mime }}</span>
-    <span style="display: inline-block; width: 12em; overflow: hidden; white-space: nowrap;">{{ l.source }}</span>
-    <span style="display: inline-block; width: 24em; overflow: hidden; white-space: nowrap;">{{ l.annotations }}</span>
+<html>
+<head>
+    <title>log lines</title>
+<style>
+body, html {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+.log-lines {
+    white-space: nowrap;
+    line-height: 1.0;
+    margin-left: 0.5em;
+}
+.log-header {
+  font-weight: bold;
+}
+.lc-s {
+  display: inline-block !important;
+  width: 4em;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.lc-m {
+  display: inline-block !important;
+  width: 13em;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.lc-l {
+  display: inline-block !important;
+  width: 24em;
+  overflow: hidden;
+  white-space: nowrap;
+}
+</style>
+</head>
+<body>
+
+<div class="log-lines">
+    <div class="log-header">
+        <span class="lc-m">Timestamp</span>
+        <span class="lc-s">Status</span>
+        <span class="lc-s">Size</span>
+        <span class="lc-l">URL</span>
+        <span class="lc-s">Hops</span>
+        <span class="lc-l">Referrer</span>
+        <span class="lc-m">Content Type</span>
+        <span class="lc-m">Source</span>
+        <span class="lc-l">Annotations</span>
+    </div>
+    {% for l in log_lines %}
+    <div>
+        <span class="lc-m">{{ l.timestamp }}</span>
+        <abbr class="lc-s" title="{{ sc.get(l.status_code, 'unknown') }}">{{ l.status_code }}</abbr>
+        <span class="lc-s">{{ l.size }}</span>
+        <span class="lc-l"><a href="{{ l.url }}">{{ l.url }}</a></span>
+        <span class="lc-s">
+            {% for hop in l.hop_path %}<abbr title="{{ h[hop] }}">{{ hop }}</abbr>{% endfor %}
+        </span>
+        <span class="lc-l"><a href="{{ l.via }}">{{ l.via }}</a></span>
+        <span class="lc-m">{{ l.mime }}</span>
+        <span class="lc-m">{{ l.source }}</span>
+        <span class="lc-l">{{ l.annotations }}</span>
+    </div>
+    {% endfor %}
 </div>
-{% endfor %}
+
+</body>
+</html>
