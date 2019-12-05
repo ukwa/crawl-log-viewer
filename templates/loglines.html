@@ -56,11 +56,11 @@ body, html {
         <span class="lc-m">{{ l.timestamp }}</span>
         <abbr class="lc-s" title="{{ sc.get(l.status_code, 'unknown') }}">{{ l.status_code }}</abbr>
         <span class="lc-s">{{ l.size }}</span>
-        <span class="lc-l"><a href="{{ l.url }}" target="_blank">{{ l.url }}</a></span>
+        <span class="lc-l"><a href="https://www.webarchive.org.uk/act/wayback/{{l.wayback_timestamp}}/{{ l.url }}" target="_blank">{{ l.url }}</a></span>
         <span class="lc-s">
             {% for hop in l.hop_path %}<abbr title="{{ h[hop] }}">{{ hop }}</abbr>{% endfor %}
         </span>
-        <span class="lc-l"><a href="{{ l.via }}" target="_blank">{{ l.via }}</a></span>
+        <span class="lc-l"><a href="https://www.webarchive.org.uk/act/wayback/{{l.wayback_timestamp}}/{{ l.via }}" target="_blank">{{ l.via }}</a></span>
         <span class="lc-m">{{ l.mime }}</span>
         {% if l.source.startswith('tid:') %}
         {% set parts = l.source.split(':', maxsplit=2) %}

@@ -25,6 +25,7 @@ class CrawlLogEntry(object):
         self.line = json.loads(msg_str)
 
         self.timestamp = self.line['timestamp']
+        self.wayback_timestamp = ''.join(filter(str.isdigit, self.timestamp))
         self.status_code = str(self.line['status_code'])
         self.size = self.line.get('size','-')
         self.url = self.line['url']
