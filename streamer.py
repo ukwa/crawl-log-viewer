@@ -11,7 +11,6 @@ from urllib.parse import urlparse
 from datetime import datetime, timezone, timedelta
 from kafka import KafkaConsumer, TopicPartition
 
-
 class CrawlLogEntry(object):
     """
     Parsers Heritrix3 format log files, including annotations and any additional extra JSON at the end of the line.
@@ -31,7 +30,7 @@ class CrawlLogEntry(object):
         self.url = self.line['url']
         self.hop_path = self.line.get('hop_path','-')
         if self.hop_path == '':
-            self.hop_path = 'S'
+            self.hop_path = '.'
         self.via = self.line.get('via','')
         self.mime = self.line.get('mimetype','')
         self.source = self.line.get('seed','')

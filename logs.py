@@ -14,6 +14,18 @@ date_format = "%Y-%m-%d %H:%M"
 
 app = Flask(__name__)
 
+
+def get_lookup(source_file):
+    lookup = {}
+    with open(source_file) as f:
+        for line in f.readlines():
+            k, v = line.split(" ", maxsplit=1)
+            lookup[k] = v
+    return lookup
+
+hop_tab = get_lookup('hops.txt')
+sc_tab = get_lookup('status_codes.txt')
+
 def default_datetime():
     ddt = datetime.now(tz=timezone.utc) - timedelta(days=1)
     return ddt.replace(hour=8, minute=0, second=0)
@@ -90,4 +102,4 @@ def log():
     from_datetime = datetime.strptime(from_date, date_format)
     app.logger.info("Datetime: %s %s" %(from_date, from_datetime))
     log_lines = filtered_stream(topic,from_datetime,log_hours, status_code, url_filter, hop_path, via, content_type, source)
-    return Response(stream_template('loglines.html', log_lines=log_lines))
+    return Response(stream_template('loglines.html', log_lines=log_lines, sc=sc_tab, h=hop_tab))
