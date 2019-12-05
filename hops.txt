@@ -1,4 +1,5 @@
-. Seed (alternative presentation of empty hop path)
+- No hop path specified
+_ Seed (alternative presentation of empty hop path)
 L Link
 P Prerequisite (as for DNS or robots.txt before another URI)
 E Embed

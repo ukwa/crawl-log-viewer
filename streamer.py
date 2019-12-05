@@ -30,7 +30,7 @@ class CrawlLogEntry(object):
         self.url = self.line['url']
         self.hop_path = self.line.get('hop_path','-')
         if self.hop_path == '':
-            self.hop_path = '.'
+            self.hop_path = '_'
         self.via = self.line.get('via','')
         self.mime = self.line.get('mimetype','')
         self.source = self.line.get('seed','')
