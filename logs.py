@@ -10,27 +10,31 @@ from flask import Flask, Response, request, render_template
 topics_json = os.getenv("TOPICS_JSON", "./topics.json")
 topics = json.load(open(topics_json))
 
-date_format = "%Y-%m-%d"
+date_format = "%Y-%m-%d %H:%M"
 
 app = Flask(__name__)
 
-@app.route("/")
-def root():
-    topic = request.args.get('topic', default=next(iter(topics)), type=str)
-    default_datetime = datetime.now(tz=timezone.utc) - timedelta(days=1)
-    from_date = request.args.get('from_date', type=str, default=datetime.strftime(default_datetime, date_format))
-    log_hours = request.args.get('log_hours', type=int, default=48)
-    return render_template('viewer.html', topic=topic, topics=topics, from_date=from_date, log_hours=log_hours)
+def default_datetime():
+    ddt = datetime.now(tz=timezone.utc) - timedelta(days=1)
+    return ddt.replace(hour=8, minute=0, second=0)
 
+def common_defaults():
+    topic = request.args.get('topic', default=next(iter(topics)), type=str)
+    from_date = request.args.get('from_date', type=str, default=datetime.strftime(default_datetime(), date_format))
+    log_hours = request.args.get('log_hours', type=int, default=24)
+    return topic, from_date, log_hours
 
 def match(filterer, value):
     return re.match(fnmatch.translate(filterer),value)
 
+def stream_template(template_name, **context):
+    app.update_template_context(context)
+    t = app.jinja_env.get_template(template_name)
+    rv = t.stream(context)
+    rv.enable_buffering(5)
+    return rv
 
-#
-def generate(topic,
-             url_filter=None, hop_path=None, status_code=None, via=None, source=None, content_type=None, len=1024,
-             from_date=datetime.now(tz=timezone.utc) - timedelta(days=2), log_hours=48):
+def filtered_stream(topic, from_date, log_hours, status_code, url_filter, hop_path, via, content_type, source, max_lines=10000):
     i = 0
     app.logger.info("GOT topic = %s" % topic)
     for log_line in generate_crawl_stream(
@@ -57,25 +61,33 @@ def generate(topic,
         # yield if not filtered:
         if emit:
             #print(log_line)
-            yield "%s\n" % log_line
+            yield log_line
             i += 1
-            if i > len:
-                yield "...\n"
+            if i > max_lines:
                 break
+
+
+@app.route("/")
+def root():
+    topic, from_date, log_hours = common_defaults()
+    return render_template('viewer.html', topic=topic, topics=topics, from_date=from_date, log_hours=log_hours)
+
 
 @app.route("/log")
 def log():
-    topic = request.args.get('topic', default=next(iter(topics)), type=str)
+    # Common defaults across endpoints:
+    topic, from_date, log_hours = common_defaults()
+
+    # Filters specific to this endpoint:
     url_filter = request.args.get('url_filter', type=str)
     hop_path = request.args.get('hop_path', type=str)
     status_code = request.args.get('status_code', type=str)
     via = request.args.get('via', type=str)
     content_type = request.args.get('content_type', type=str)
     source = request.args.get('source', type=str)
-    default_datetime = datetime.now(tz=timezone.utc) - timedelta(days=1)
-    from_date = request.args.get('from_date', type=str, default=datetime.strftime(default_datetime, date_format))
-    log_hours = request.args.get('log_hours', type=int, default=48)
+
+    # Set up streaming results:
     from_datetime = datetime.strptime(from_date, date_format)
     app.logger.info("Datetime: %s %s" %(from_date, from_datetime))
-    return Response(generate(topic, url_filter, hop_path, status_code, via, source, content_type,
-                             from_date=from_datetime,log_hours=log_hours), mimetype='text/plain')
+    log_lines = filtered_stream(topic,from_datetime,log_hours, status_code, url_filter, hop_path, via, content_type, source)
+    return Response(stream_template('loglines.html', log_lines=log_lines))

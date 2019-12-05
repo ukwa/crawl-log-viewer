@@ -1,0 +1,13 @@
+{% for l in log_lines %}
+<div style="white-space: nowrap; line-height: 0.95">
+    <span style="display: inline-block; width: 12em; overflow: hidden; white-space: nowrap;">{{ l.timestamp }} </span>
+    <span style="display: inline-block; width: 4em; overflow: hidden; white-space: nowrap;">{{ l.status_code }}</span>
+    <span style="display: inline-block; width: 5em; overflow: hidden; white-space: nowrap;">{{ l.size }}</span>
+    <span style="display: inline-block; width: 24em; overflow: hidden; white-space: nowrap;"><a href="{{ l.url }}">{{ l.url }}</a></span>
+    <span style="display: inline-block; width: 5em; overflow: hidden; white-space: nowrap;">{{ l.hop_path }}</span>
+    <span style="display: inline-block; width: 24em; overflow: hidden; white-space: nowrap;"><a href="{{ l.via }}">{{ l.via }}</a></span>
+    <span style="display: inline-block; width: 8em; overflow: hidden; white-space: nowrap;">{{ l.mime }}</span>
+    <span style="display: inline-block; width: 12em; overflow: hidden; white-space: nowrap;">{{ l.source }}</span>
+    <span style="display: inline-block; width: 24em; overflow: hidden; white-space: nowrap;">{{ l.annotations }}</span>
+</div>
+{% endfor %}
