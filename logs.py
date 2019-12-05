@@ -1,38 +1,59 @@
 import re
+import os
+import json
 import fnmatch
-from parser import CrawlLogLine
+from datetime import datetime, timezone, timedelta
+from streamer import generate_crawl_stream
 from flask import Flask, Response, request, render_template
-import requests
+
+# Load the topics spec:
+topics_json = os.getenv("TOPICS_JSON", "./topics.json")
+topics = json.load(open(topics_json))
+
+date_format = "%Y-%m-%d %H:%M"
 
 app = Flask(__name__)
 
 
-@app.route("/")
-def root():
-    log_url = request.args.get('log_url', default='http://localhost:8000/static/example.crawl.log', type=str)
-    return render_template('viewer.html', log_url=log_url)
+def get_lookup(source_file):
+    lookup = {}
+    with open(source_file) as f:
+        for line in f.readlines():
+            k, v = line.split(" ", maxsplit=1)
+            lookup[k] = v
+    return lookup
 
+hop_tab = get_lookup('hops.txt')
+sc_tab = get_lookup('status_codes.txt')
+
+def default_datetime():
+    ddt = datetime.now(tz=timezone.utc) - timedelta(days=1)
+    return ddt.replace(hour=8, minute=0, second=0)
+
+def common_defaults():
+    topic = request.args.get('topic', default=next(iter(topics)), type=str)
+    from_date = request.args.get('from_date', type=str, default=datetime.strftime(default_datetime(), date_format))
+    log_hours = request.args.get('log_hours', type=int, default=24)
+    return topic, from_date, log_hours
 
 def match(filterer, value):
     return re.match(fnmatch.translate(filterer),value)
 
+def stream_template(template_name, **context):
+    app.update_template_context(context)
+    t = app.jinja_env.get_template(template_name)
+    rv = t.stream(context)
+    rv.enable_buffering(5)
+    return rv
 
-#
-def generate(log_url, url_filter=None, hop_path=None, status_code=None, via=None, source=None, content_type=None, len=1024):
+def filtered_stream(topic, from_date, log_hours, status_code, url_filter, hop_path, via, content_type, source, max_lines=10000):
     i = 0
-    print("GOT log_url = %s" % log_url)
-    r = requests.get(log_url, stream=True)
-    for line in r.iter_lines():
-        line = line.decode('utf-8')
-        try:
-            log_line = CrawlLogLine(line)
-            # print(url_filter,log_line.url)
-        except Exception as e:
-            print(e)
-            print("Caught exception when parsing line: %s"+ line)
-            yield "ERROR: %s\n" % line
-            # Try the next line...
-            continue
+    app.logger.info("GOT topic = %s" % topic)
+    for log_line in generate_crawl_stream(
+            from_date=from_date,
+            to_date=from_date + timedelta(hours=log_hours),
+            broker=topics[topic]['broker'],
+            topic=topics[topic]['topic'] ):
 
         # Filters:
         emit = True
@@ -52,20 +73,33 @@ def generate(log_url, url_filter=None, hop_path=None, status_code=None, via=None
         # yield if not filtered:
         if emit:
             #print(log_line)
-            yield "%s\n" % line
+            yield log_line
             i += 1
-            if i > len:
-                yield "...\n"
+            if i > max_lines:
                 break
+
+
+@app.route("/")
+def root():
+    topic, from_date, log_hours = common_defaults()
+    return render_template('viewer.html', topic=topic, topics=topics, from_date=from_date, log_hours=log_hours)
 
 
 @app.route("/log")
 def log():
-    log_url = request.args.get('log_url', default='http://localhost:8000/static/example.crawl.log', type=str)
+    # Common defaults across endpoints:
+    topic, from_date, log_hours = common_defaults()
+
+    # Filters specific to this endpoint:
     url_filter = request.args.get('url_filter', type=str)
     hop_path = request.args.get('hop_path', type=str)
     status_code = request.args.get('status_code', type=str)
     via = request.args.get('via', type=str)
     content_type = request.args.get('content_type', type=str)
     source = request.args.get('source', type=str)
-    return Response(generate(log_url, url_filter, hop_path, status_code, via, source, content_type), mimetype='text/plain')
+
+    # Set up streaming results:
+    from_datetime = datetime.strptime(from_date, date_format)
+    app.logger.info("Datetime: %s %s" %(from_date, from_datetime))
+    log_lines = filtered_stream(topic,from_datetime,log_hours, status_code, url_filter, hop_path, via, content_type, source)
+    return Response(stream_template('loglines.html', log_lines=log_lines, sc=sc_tab, h=hop_tab))

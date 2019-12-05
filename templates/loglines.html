@@ -1,0 +1,77 @@
+<html>
+<head>
+    <title>log lines</title>
+<style>
+body, html {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: monospace;
+}
+.log-lines {
+    white-space: nowrap;
+    line-height: 1.0;
+    margin-left: 0.5em;
+}
+.log-header {
+  font-weight: bold;
+}
+.lc-s {
+  display: inline-block !important;
+  width: 4em;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.lc-m {
+  display: inline-block !important;
+  width: 15em;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.lc-l {
+  display: inline-block !important;
+  width: 30em;
+  overflow: hidden;
+  white-space: nowrap;
+}
+</style>
+</head>
+<body>
+
+<div class="log-lines">
+    <div class="log-header">
+        <span class="lc-m">Timestamp</span>
+        <span class="lc-s">Status</span>
+        <span class="lc-s">Size</span>
+        <span class="lc-l">URL</span>
+        <span class="lc-s">Hops</span>
+        <span class="lc-l">Referrer</span>
+        <span class="lc-m">Content Type</span>
+        <span class="lc-m">Source</span>
+        <span class="lc-l">Annotations</span>
+    </div>
+    {% for l in log_lines %}
+    <div>
+        <span class="lc-m">{{ l.timestamp }}</span>
+        <abbr class="lc-s" title="{{ sc.get(l.status_code, 'unknown') }}">{{ l.status_code }}</abbr>
+        <span class="lc-s">{{ l.size }}</span>
+        <span class="lc-l"><a href="{{ l.url }}" target="_blank">{{ l.url }}</a></span>
+        <span class="lc-s">
+            {% for hop in l.hop_path %}<abbr title="{{ h[hop] }}">{{ hop }}</abbr>{% endfor %}
+        </span>
+        <span class="lc-l"><a href="{{ l.via }}" target="_blank">{{ l.via }}</a></span>
+        <span class="lc-m">{{ l.mime }}</span>
+        {% if l.source.startswith('tid:') %}
+        {% set parts = l.source.split(':', maxsplit=2) %}
+            <span class="lc-m"><a href="https://www.webarchive.org.uk/act/targets/{{ parts[1] }}" target="_blank">{{ l.source }}</a></span>
+        {% else %}
+            <span class="lc-m">{{ l.source }}</span>
+        {% endif %}
+        <span class="lc-l">{{ l.annotations }}</span>
+    </div>
+    {% endfor %}
+</div>
+
+</body>
+</html>

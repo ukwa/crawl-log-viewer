@@ -1,54 +1,76 @@
 <html>
 <head>
-    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>log viewer</title>
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-body, html {width: 100%; height: 100%; margin: 0; padding: 0;}
-iframe {
-    display: block;
+body, html {
     width: 100%;
-    height: 85%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column
+}
+iframe {
+    width: 100%;
+    flex-grow: 1;
     border: none;
+    border-top: 1px solid black;
+    padding-top: 0.25em;
 }
 .toolbar {
-    margin-top: 10px;
-    height: 50px;
+  padding: 0.25em;
+  background-color: #f8f8f8;
+  margin: 0;
 }
 </style>
 </head>
 <body>
 
-<form class="pure-form" action="/" method="get">
+<form class="pure-form toolbar" action="/" method="get">
 
-    <div class="toolbar">
-        <div class="pure-g">
-            <div class="pure-u-5-5">
-                &nbsp;<label for="filter">Filters</label>&nbsp;
-                <input name="status_code" type="text" value="{{ request.args.get('status_code', '') }}" placeholder="Status Code"/>
-                <input name="url_filter" type="text" value="{{ request.args.get('url_filter', '') }}" placeholder="URL"/>
-                <input name="hop_path" type="text" value="{{ request.args.get('hop_path', '') }}" placeholder="Hop Path"/>
-                <input name="via" type="text" value="{{ request.args.get('via', '') }}" placeholder="Via URL"/>
-                <input name="content_type" type="text" value="{{ request.args.get('content_type', '') }}" placeholder="Content Type"/>
-                <input name="source" type="text" value="{{ request.args.get('source', '') }}" placeholder="Source URL"/>
-                <button type="submit" class="pure-button pure-button-primary">Filter</button>
-            </div>
+    <div class="pure-g toolbar">
+        <div class="pure-u-4-5">
+            &nbsp;<label for="topic">Crawl log</label>&nbsp;
+             <select id="topic" name="topic">
+                 {% for t in topics %}
+                     <option value="{{ t }}" {% if topic == t %} selected {% endif %}>{{ topics[t]['title'] }}</option>
+                 {% endfor %}
+             </select>
+            <label for="from_date">From date</label>
+            <input name="from_date" id="from_date" value="{{ from_date }}">
+            <label for="log_hours">until (hours) later</label>
+            <input type="number" name="log_hours" value="{{ log_hours }}">
+        </div>
+    </div>
+    <div class="pure-g toolbar">
+        <div class="pure-u-4-5">
+            &nbsp;<label for="filter">Filters</label>&nbsp;
+            <input name="status_code" type="text" value="{{ request.args.get('status_code', '') }}" placeholder="Status Code"/>
+            <input name="url_filter" type="text" value="{{ request.args.get('url_filter', '') }}" placeholder="URL"/>
+            <input name="hop_path" type="text" value="{{ request.args.get('hop_path', '') }}" placeholder="Hop Path"/>
+            <input name="via" type="text" value="{{ request.args.get('via', '') }}" placeholder="Via URL"/>
+            <input name="content_type" type="text" value="{{ request.args.get('content_type', '') }}" placeholder="Content Type"/>
+            <input name="source" type="text" value="{{ request.args.get('source', '') }}" placeholder="Source URL"/>
+        </div>
+        <div class="pure-u-1-5">
+            <button type="submit" class="pure-button pure-button-primary">GO</button>
         </div>
     </div>
 
-    <iframe src="{{ url_for( 'log') }}?{{ request.query_string.decode('utf-8') }}">
-    </iframe>
-
-    <div class="toolbar">
-        <div class="pure-g">
-            <div class="pure-u-4-5">
-                &nbsp;<label for="log_url">Log file</label>&nbsp;
-                <input name="log_url" type="text" value="{{ log_url }}" style="width:90%"/>
-            </div>
-            <div class="pure-u-1-5"><button type="submit" class="pure-button pure-button-primary">View</button></div>
-        </div>
-    </div>
 </form>
+
+<iframe src="{{ url_for( 'log') }}?{{ request.query_string.decode('utf-8') }}">
+</iframe>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+flatpickr("#from_date", {
+    enableTime: true
+});
+</script>
 
 </body>
 </html>

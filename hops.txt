@@ -1,0 +1,9 @@
+- No hop path specified
+_ Seed (alternative presentation of empty hop path)
+L Link
+P Prerequisite (as for DNS or robots.txt before another URI)
+E Embed
+X Speculative embed (aggressive/Javascript link extraction)
+R Referral/redirect links, like header 'Location:' on a 301/302 response.
+I Inferred/implied links -- not necessarily literally in the source material, but deduced by convention.
+S Synthesized form-submit
