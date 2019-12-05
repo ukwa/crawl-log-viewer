@@ -62,7 +62,12 @@ body, html {
         </span>
         <span class="lc-l"><a href="{{ l.via }}">{{ l.via }}</a></span>
         <span class="lc-m">{{ l.mime }}</span>
-        <span class="lc-m">{{ l.source }}</span>
+        {% if l.source.startswith('tid:') %}
+        {% set parts = l.source.split(':', maxsplit=2) %}
+            <span class="lc-m"><a href="https://www.webarchive.org.uk/act/targets/{{ parts[1] }}">{{ l.source }}</a></span>
+        {% else %}
+            <span class="lc-m">{{ l.source }}</span>
+        {% endif %}
         <span class="lc-l">{{ l.annotations }}</span>
     </div>
     {% endfor %}
