@@ -7,6 +7,8 @@ services:
   # ----------------------
   log-viewer:
     build: .
+    environment:
+     - "SCRIPT_NAME=/intranet/logs"
     ports:
      - "8000:8000"
 

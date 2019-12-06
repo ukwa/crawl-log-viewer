@@ -29,7 +29,7 @@ iframe {
 </head>
 <body>
 
-<form class="pure-form toolbar" action="/" method="get">
+<form class="pure-form toolbar" action="{{ url_for('root') }}" method="get">
 
     <div class="pure-g toolbar">
         <div class="pure-u-4-5">
@@ -62,7 +62,7 @@ iframe {
 
 </form>
 
-<iframe src="{{ url_for( 'log') }}?{{ request.query_string.decode('utf-8') }}">
+<iframe src="{{ url_for('log') }}?{{ request.query_string.decode('utf-8') }}">
 </iframe>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>

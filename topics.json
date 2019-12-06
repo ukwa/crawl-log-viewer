@@ -1,7 +1,12 @@
 {
   "test-log": {
-    "title": "Test Log",
+    "title": "Localhost Test Log",
     "topic": "fc.crawled",
     "broker": "localhost:9092"
+  },
+  "docker-log": {
+    "title": "Docker Test Log",
+    "topic": "fc.crawled",
+    "broker": "kafka:9092"
   }
 }
